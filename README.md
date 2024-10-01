@@ -35,10 +35,10 @@ Objetivo: Auxiliar na melhor escolha de aluguel, considerando os questionamentos
 - Qual o percentual/quantidade de casas para alugar por cidade?
 - Qual o valor do metro quadrado para alugar por cidade?
 - Qual a média de valor total do aluguel por cidade?
-  Qual a média de area e aluguel por cidade? (Correlacionados)
-  Como estão distribuidos os valores imbutidos no aluguem por cidade?
-  Onde se concetram os imoveis com maior valor de aluguel? E os de menor valor?
-  Como estão distribuidos os imoveis por valor de aluguel, área e que podem ou não ter animais de estimação?
-  Qual a relação entre o preço e a presença ou não de mobília por cidade?
-  Qual a relação entre andar e valor total do aluguel por cidade?
-  Qual a relação entre quantidade de vagas de estacionamento e valor total do aluguel?
+- Qual a média de area e aluguel por cidade? (Correlacionados)
+- Como estão distribuidos os valores imbutidos no aluguem por cidade?
+- Onde se concetram os imoveis com maior valor de aluguel? E os de menor valor?
+- Como estão distribuidos os imoveis por valor de aluguel, área e que podem ou não ter animais de estimação?
+- Qual a relação entre o preço e a presença ou não de mobília por cidade?
+- Qual a relação entre andar e valor total do aluguel por cidade?
+- Qual a relação entre quantidade de vagas de estacionamento e valor total do aluguel?

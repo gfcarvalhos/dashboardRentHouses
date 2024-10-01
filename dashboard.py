@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Dashboard - Aluguel de Casas", layout="wide")
 
@@ -16,6 +17,57 @@ with st.container():
 def carregar_dados():
   dados = pd.read_csv('houses_to_rent_v2.csv')
   return dados
+
+with st.container(border=True):
+  col1, col2, col3 = st.columns(3)
+  dados = carregar_dados()
+
+  total_casas = dados['city'].value_counts().sum()
+  fig_total_casas = go.Figure(go.Indicator(
+    mode = "number",
+    value = total_casas,
+    title = {"text": "Quantidade Total de Imóveis", "font": {"size": 20}},  
+    number = {'valueformat': ",.0f", 'font': {"size": 50}}
+  ))
+  fig_total_casas.update_layout(
+    height=150,
+    width=270, 
+    margin=dict(l=50, r=20, t=50, b=20), 
+  )
+  col1.plotly_chart(fig_total_casas)
+
+  valor_total = dados['total (R$)'].sum()
+  valor_medio_geral = valor_total / total_casas
+  fig = go.Figure(go.Indicator(
+    mode = "number", 
+    value = valor_medio_geral, 
+    title = {"text": "Custo Médio do Aluguel", "font": {"size": 20}},
+    number = {'prefix': "R$ ", 'valueformat': ',.2f', 'font': {"size": 45}}
+  ))
+
+  fig.update_layout(
+    height=150,
+    width=270, 
+    margin=dict(l=20, r=20, t=50, b=20), 
+  )
+  col2.plotly_chart(fig)
+
+  area_total = dados['area'].sum()
+  metro_quadrado_total = valor_total/area_total
+  fig_metro_quadrado_total = go.Figure(go.Indicator(
+    mode = "number", 
+    value = metro_quadrado_total, 
+    title = {"text": "Custo do Metro Quadrado", "font": {"size": 20}},
+    number = {'prefix': "R$ ", 'valueformat': ',.2f', 'font': {"size": 45}, 'suffix': '/m²'}
+  ))
+
+  fig_metro_quadrado_total.update_layout(
+    height=150,
+    width=270, 
+    margin=dict(l=20, r=20, t=50, b=20), 
+  )
+
+  col3.plotly_chart(fig_metro_quadrado_total)
 
 with st.container(border=True):
   col1, col2, col3 = st.columns(3)
