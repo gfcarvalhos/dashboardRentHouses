@@ -5,10 +5,29 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Dashboard - Aluguel de Casas", layout="wide")
 
+def remove_outliers(dados, campo):
+  #Calculo dos quartis e IQR
+  Q1 = dados[campo].quantile(0.25)
+  Q3 = dados[campo].quantile(0.75)
+  IQR = Q3 - Q1
+  #Define limites para outliers em relação a área
+  limite_inferior = Q1 - 1.5 * IQR
+  limite_superior = Q3 + 1.5 * IQR
+  #Retira outliers referente a área
+  dados = dados[(dados[campo] >= limite_inferior) & (dados[campo] <= limite_superior)]
+  return dados
+
+
 @st.cache_data
 def carregar_dados():
   dados = pd.read_csv('houses_to_rent_v2.csv')
-  return dados
+  #Remove outliers de area
+  dados_intermediario = remove_outliers(dados, 'area')
+  dados_final = remove_outliers(dados_intermediario, 'total (R$)')
+  return dados_final
+
+#Carrega os dados para uso nos containers
+dados = carregar_dados()
 
 #Cabeçalho do dashboard
 with st.container():
@@ -18,11 +37,9 @@ with st.container():
   st.title("Dashboard de Aluguel de Casas")
   st.write('Gabriel Silva - [Github - Projeto](https://github.com/gfcarvalhos/dashboardRentHouses)')
 
-#Primeira linha de graficos
+#Primeira linha de graficos - Visao Global
 with st.container(border=True):
   col1, col2, col3 = st.columns(3)
-  dados = carregar_dados()
-
   total_casas = dados['city'].value_counts().sum()
 
   #Cards referentes a analise geral dos dados
@@ -71,11 +88,10 @@ with st.container(border=True):
   )
   col3.plotly_chart(fig_metro_quadrado_total)
 
-#Segunda linha de gráficos
+#Segunda linha de gráficos - Visao Global por Cidade
 with st.container(border=True):
   col1, col2, col3 = st.columns(3)
-  dados = carregar_dados()
-  
+
   #Grafico de arvore representando a distribuição de imoveis por cidade
   dados_por_cidade = dados['city'].value_counts().reset_index()
   dados_por_cidade.columns = ['city', 'count']
@@ -111,19 +127,18 @@ with st.container(border=True):
 
   fig_media_total = px.bar(dados_media_total, x='city', y='total (R$)',  
                      title="Média do Valor de Aluguel por Cidade",
-                     labels={'total (R$)': 'Total (R$)', 'city': ''},
+                     labels={'total (R$)': 'Valor médio de aluguel (R$)', 'city': 'Cidade', 'color': 'Custo'},
                      color = 'color',
                      text=dados_media_total['total (R$)'].apply(lambda x: f'R$ {x}'),
                     color_discrete_map={
-                      'Abaixo da média': '#1f77b4',
-                      'Acima da média': '#aec7e8'     
+                      'Abaixo da média': '#aec7e8',
+                      'Acima da média': '#1f77b4'   
                     })
-  #Retira legenda de cores
-  fig_media_total.update_coloraxes(showscale=False)
   #Formata fonte da letra
   fig_media_total.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
   #Posiciona o titulo
   fig_media_total.update_layout(
+    xaxis_title=None,
     showlegend=False,
     title={
           'text': 'Média do Valor de Aluguel por Cidade',
@@ -139,7 +154,7 @@ with st.container(border=True):
     x1=len(dados_media_total)-0.5, #fim do eixo
     y0=media_aluguel,
     y1=media_aluguel,
-    line=dict(color="orangered", width=2, dash="dash"),
+    line=dict(color="gold", width=2, dash="dash"),
   )
   #Legenda para a linha pontilhada
   fig_media_total.add_annotation(
@@ -147,7 +162,7 @@ with st.container(border=True):
     y=media_aluguel*1.05,
     text=f"Custo médio",
     showarrow=False,
-    font=dict(size=12, color="orangered"),
+    font=dict(size=12, color="gold"),
     xanchor="right"
   )
   col2.plotly_chart(fig_media_total)
@@ -163,17 +178,18 @@ with st.container(border=True):
                               title='Valor do metro quadrado por cidade',
                               orientation='h',
                               text=dados_media['metro_quadrado'].apply(lambda x: f'R$ {x}'),
-                              labels={'metro_quadrado': 'Valor do Metro Quadrado (R$)', 'city': ''}, 
+                              labels={'metro_quadrado': 'Valor médio do Metro Quadrado (R$)', 'city': 'Cidade'}, 
                               color = 'color',
                               color_discrete_map={
-                                 'Abaixo da média': '#1f77b4',  
-                                 'Acima da média': '#aec7e8'    
+                                'Abaixo da média': '#aec7e8',
+                                'Acima da média': '#1f77b4'     
                              })
   fig_metro_quadrado.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
   fig_metro_quadrado.update_layout(
+    xaxis_title=None,
     showlegend=False,
     title={
-          'text': 'Valor do metro quadrado por cidade',
+          'text': 'Valor do Metro Quadrado por Cidade',
             'y': 0.90,
             'x': 0.5,
             'xanchor': 'center',
@@ -187,7 +203,7 @@ with st.container(border=True):
     x1=media_metro_quadrado,
     y0=-0.5, #inicio do eixo
     y1=len(dados_media)-0.5, #fim do eixo
-    line=dict(color="orangered", width=2, dash="dash"),
+    line=dict(color="gold", width=2, dash="dash"),
   )
 
   #Legenda para a linha pontilhada
@@ -196,11 +212,48 @@ with st.container(border=True):
     x=media_metro_quadrado,
     text=f"Custo médio",
     showarrow=False,
-    font=dict(size=12, color="orangered"),
+    font=dict(size=12, color="gold"),
     yanchor="bottom"
   )
   col3.plotly_chart(fig_metro_quadrado)
 
+#Terceira linha de gráficos
+with st.container(border=True):
+  #Calculo do metro quadrado mais barato
+  dados['preco_metro_quadrado'] = dados['total (R$)'] / dados['area']
+  preco_medio = dados['preco_metro_quadrado'].mean()
+
+  #Condicao para realce de melhor custo-benefico considerando valor médio do metro quadrado
+  dados['color'] = ['m² abaixo do valor médio' if preco <= preco_medio else 'm² acima do valor médio' for preco in dados['preco_metro_quadrado']]
+
+  fig_area_aluguel = px.histogram(dados, x='area', 
+                                 color='color', 
+                                 hover_name='city', 
+                                 facet_col='city', 
+                                 nbins=30,
+                                 labels={'color': 'Legenda'},
+                                 color_discrete_map={
+                                    'm² abaixo do valor médio': '#aec7e8', 
+                                    'm² acima do valor médio': '#1f77b4'  
+                                })
+  fig_area_aluguel.update_layout(
+    title={
+          'text': 'Distribuição de Imóveis por Área e por Cidade',
+            'y': 1,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',}, 
+    yaxis_title=None,  
+    yaxis=dict(title='Distribuição de Imóveis', title_font=dict(size=14))  
+  )
+  fig_area_aluguel.for_each_xaxis(lambda xaxis: xaxis.update(title='Área (m²)', title_font=dict(size=14)))
+  fig_area_aluguel.update_traces(marker_line=dict(color='black', width=1))
+  fig_area_aluguel.for_each_annotation(lambda a: a.update(text=a.text.split('=')[1]))
+  st.plotly_chart(fig_area_aluguel)
+
+#Quarta linha de gráficos
+with st.container(border=True):
+  col1, col2, col3 = st.columns(3)
 
 with st.container():
   st.write('---')

@@ -69,14 +69,14 @@ Data Storytelling
 
 Tema: Informativo sobre o aluguel de casas nas cidades de São Paulo, Porto Alegre, Rio de Janeiro, Campinas e Belo Horizonte.
 
-Publico-alvo: pessoas que queiram alugar casas nessas cidades
+Publico-alvo: Pessoas com família pequena que queiram alugar casas com melhor custo-benefício nessas cidades
 
 Objetivo: Auxiliar na melhor escolha de aluguel, considerando os questionamentos:
 
 - Qual o percentual/quantidade de casas para alugar por cidade? ✅
 - Qual o valor do metro quadrado para alugar total e por cidade? ✅
 - Qual a média de valor total do aluguel e por cidade? ✅
-- Qual a média de area e aluguel por cidade? (Correlacionados)
+- Qual a correlação entre area e aluguel por cidade? ✅
 - Como estão distribuidos os valores imbutidos no aluguem por cidade?
 - Onde se concetram os imoveis com maior valor de aluguel? E os de menor valor?
 - Como estão distribuidos os imoveis por valor de aluguel, área e que podem ou não ter animais de estimação?
