@@ -11,8 +11,8 @@ def remove_outliers(dados, campo):
   Q3 = dados[campo].quantile(0.75)
   IQR = Q3 - Q1
   #Define limites para outliers em relação a área
-  limite_inferior = Q1 - 1.5 * IQR
-  limite_superior = Q3 + 1.5 * IQR
+  limite_inferior = Q1 - 4 * IQR
+  limite_superior = Q3 + 4 * IQR
   #Retira outliers referente a área
   dados = dados[(dados[campo] >= limite_inferior) & (dados[campo] <= limite_superior)]
   return dados
@@ -22,9 +22,9 @@ def remove_outliers(dados, campo):
 def carregar_dados():
   dados = pd.read_csv('houses_to_rent_v2.csv')
   #Remove outliers de area
-  dados_intermediario = remove_outliers(dados, 'area')
-  dados_final = remove_outliers(dados_intermediario, 'total (R$)')
-  return dados_final
+  dados_tratados = remove_outliers(dados, 'area')
+  #dados_final = remove_outliers(dados_tratados, 'total (R$)')
+  return dados_tratados
 
 #Carrega os dados para uso nos containers
 dados = carregar_dados()
@@ -135,7 +135,7 @@ with st.container(border=True):
                       'Acima da média': '#1f77b4'   
                     })
   #Formata fonte da letra
-  fig_media_total.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
+  fig_media_total.update_traces(textfont=dict(size=9, color='white', family='Arial, sans-serif', weight='bold'))
   #Posiciona o titulo
   fig_media_total.update_layout(
     xaxis_title=None,
@@ -158,7 +158,7 @@ with st.container(border=True):
   )
   #Legenda para a linha pontilhada
   fig_media_total.add_annotation(
-    x=len(dados_media_total)/2,
+    x=len(dados_media_total) - 0.5,
     y=media_aluguel*1.05,
     text=f"Custo médio",
     showarrow=False,
@@ -217,7 +217,7 @@ with st.container(border=True):
   )
   col3.plotly_chart(fig_metro_quadrado)
 
-#Terceira linha de gráficos
+#Terceira linha de gráficos - Histograma Qtd x area x custo medio do m²
 with st.container(border=True):
   #Calculo do metro quadrado mais barato
   dados['preco_metro_quadrado'] = dados['total (R$)'] / dados['area']
@@ -238,7 +238,7 @@ with st.container(border=True):
                                 })
   fig_area_aluguel.update_layout(
     title={
-          'text': 'Distribuição de Imóveis por Área e por Cidade',
+          'text': 'Distribuição de Imóveis com Destaque para Preço/m² Abaixo da Média',
             'y': 1,
             'x': 0.5,
             'xanchor': 'center',
@@ -251,9 +251,39 @@ with st.container(border=True):
   fig_area_aluguel.for_each_annotation(lambda a: a.update(text=a.text.split('=')[1]))
   st.plotly_chart(fig_area_aluguel)
 
-#Quarta linha de gráficos
+#Quarta linha de gráficos - Valores imbutidos no aluguel por cidade
 with st.container(border=True):
-  col1, col2, col3 = st.columns(3)
+  dados_medios_imbutidos = dados.groupby('city')[['rent amount (R$)', 'hoa (R$)', 'property tax (R$)', 'fire insurance (R$)']].mean().reset_index().round(2)
+
+  fig_valores_imbutidos = px.area(dados_medios_imbutidos, 
+                                    x="city", 
+                                    y=['rent amount (R$)', 'hoa (R$)', 'property tax (R$)', 'fire insurance (R$)'],
+                                    labels={'value': 'Média dos Valores Imbutidos (R$)', 'city': 'Cidades'},
+                                    title='Distribuição da Média dos Valores Embutidos no Aluguel por Cidade',
+                                    )
+
+  labels = {
+    'rent amount (R$)': 'Aluguel (R$)',
+    'hoa (R$)': 'Taxa de HOA (R$)',
+    'property tax (R$)': 'Valor do IPTU (R$)',
+    'fire insurance (R$)': 'Seguro Contra Incêndio (R$)',
+  }
+  fig_valores_imbutidos.for_each_trace(lambda t: t.update(name=labels[t.name]))
+  fig_valores_imbutidos.update_traces(stackgroup = None, 
+                                      fill = 'tozeroy',
+                                      mode="markers+lines", 
+                                      hovertemplate=None)
+  
+  fig_valores_imbutidos.update_layout(
+    title={
+          'text': 'Distribuição da Média dos Valores Embutidos no Aluguel por Cidade',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',}, 
+  )
+  st.plotly_chart(fig_valores_imbutidos)
+
 
 with st.container():
   st.write('---')
