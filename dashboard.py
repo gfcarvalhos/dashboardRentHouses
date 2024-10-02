@@ -23,8 +23,8 @@ def carregar_dados():
   dados = pd.read_csv('houses_to_rent_v2.csv')
   #Remove outliers de area
   dados_tratados = remove_outliers(dados, 'area')
-  #dados_final = remove_outliers(dados_tratados, 'total (R$)')
-  return dados_tratados
+  dados_final = remove_outliers(dados_tratados, 'total (R$)')
+  return dados_final
 
 #Carrega os dados para uso nos containers
 dados = carregar_dados()
@@ -239,15 +239,18 @@ with st.container(border=True):
   fig_area_aluguel.update_layout(
     title={
           'text': 'Distribuição de Imóveis com Destaque para Preço/m² Abaixo da Média',
-            'y': 1,
+            'y': 0.97,
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top',}, 
     yaxis_title=None,  
     yaxis=dict(title='Distribuição de Imóveis', title_font=dict(size=14))  
   )
+  #Atualiza o titulo dos eixos X
   fig_area_aluguel.for_each_xaxis(lambda xaxis: xaxis.update(title='Área (m²)', title_font=dict(size=14)))
+  #Acrescenta bordas por intervalo
   fig_area_aluguel.update_traces(marker_line=dict(color='black', width=1))
+  #Atualiza o subtitulo dos histogramas
   fig_area_aluguel.for_each_annotation(lambda a: a.update(text=a.text.split('=')[1]))
   st.plotly_chart(fig_area_aluguel)
 
@@ -281,9 +284,134 @@ with st.container(border=True):
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top',}, 
+    legend_title='Legenda',
+    xaxis_title=None
   )
+  fig_valores_imbutidos.update_xaxes(range=[-0.2, len(dados_medios_imbutidos['city']) - 0.2])
   st.plotly_chart(fig_valores_imbutidos)
 
+#Quinta linha de gráficos - Análise para animais de estimação
+with st.container(border=True):
+  col1, col2, col3 = st.columns(3)
+
+  #Grafico de porcentagem de aceites e não aceites
+  contagem_animais = dados.groupby('city')['animal'].value_counts().reset_index()
+
+  contagem_animais['total'] = contagem_animais.groupby('city')['count'].transform('sum')
+  contagem_animais['percent'] = (contagem_animais['count'] / contagem_animais['total']) * 100
+
+  fig_porcentagem_animais_cidade = go.Figure()
+
+  dados_aceita_animais = contagem_animais[contagem_animais['animal'] == 'acept']
+  dados_nao_aceita_animais = contagem_animais[contagem_animais['animal'] == 'not acept']
+  #Grafico de acept
+  fig_porcentagem_animais_cidade.add_trace(go.Bar(
+    y=dados_aceita_animais['city'], 
+    x=dados_aceita_animais['percent'], 
+    name='Aceita', 
+    orientation='h', 
+    marker_color='#aec7e8',
+    text=dados_aceita_animais['percent'].round(2).astype(str) + '%',
+    textposition='inside',
+    customdata=dados_aceita_animais['percent'],
+    hovertemplate='%{y}<br>Aceita: %{x:.2f}%<extra></extra>'
+))
+  #Grafico de not acept
+  fig_porcentagem_animais_cidade.add_trace(go.Bar(
+    y=dados_nao_aceita_animais['city'], 
+    x=-dados_nao_aceita_animais['percent'], 
+    name='Não Aceita', 
+    orientation='h', 
+    marker_color='#1f77b4',
+    text=dados_nao_aceita_animais['percent'].round(2).astype(str) + '%',
+    textposition='inside',
+    hovertemplate='%{y}<br>Não Aceita: %{customdata:.2f}%<extra></extra>',
+    customdata=dados_nao_aceita_animais['percent']
+))
+  fig_porcentagem_animais_cidade.update_layout(
+    title={
+          'text': 'Porcentagem de Imóveis em Aceite de Animais',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',}, 
+    xaxis_title=None,
+    yaxis_title= None,
+    barmode='overlay',
+    xaxis=dict(showgrid=True, zeroline=True, showticklabels=False),
+    showlegend=True,
+    )
+  col1.plotly_chart(fig_porcentagem_animais_cidade)
+
+  #Grafico 2 - Quanto a area
+  dados_animais_area = dados
+
+  fig_animais_area = px.histogram(dados_animais_area, 
+                                  x='area', 
+                                  color='animal',
+                                  facet_col='animal', 
+                                  nbins=30,
+                                  labels={'area': 'Área (m²)'},
+                                  title='Distribuição de Imóveis por Área',
+                                  marginal='violin')
+
+  #Coloca bordas nos intervalos
+  fig_animais_area.update_traces(marker_line=dict(color='black', width=1))
+  #Atualiza legenda
+  fig_animais_area.for_each_trace(lambda t: t.update(name='Aceita' if t.name == 'acept' else 'Não Aceita'))
+
+  #Atualiza layout
+  fig_animais_area.update_layout(
+    title={
+          'text': 'Distribuição de Imóveis por Área em Aceite de Animais',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',}, 
+    legend_title=None,
+    yaxis_title='Distribuição de Imóveis por área',
+  )
+  # Remove o "= valor" da anotação do eixo
+  fig_animais_area.for_each_annotation(lambda a: a.update(text=''))
+
+  col2.plotly_chart(fig_animais_area)
+
+  #Grafico 3 - Quanto a custo
+  dados_animais_custo = dados
+
+  fig_animais_custo = px.scatter(dados_animais_custo, 
+                                 x='area', 
+                                 y='total (R$)', 
+                                 color='animal',
+                                 labels={'area': 'Área (m²)'})
+  
+  # Adicionando um retângulo claro para realçar uma área específica
+  fig_animais_custo.add_shape(
+    type="rect",
+    x0=50,  
+    x1=200, 
+    y0=0, 
+    y1=dados_animais_custo['total (R$)'].max()*1.02, 
+    fillcolor="rgba(255, 255, 0, 0.2)",  
+    line=dict(color="rgba(255, 255, 0, 0)"), 
+  )
+  #Atualiza legenda
+  fig_animais_custo.for_each_trace(lambda t: t.update(name='Aceita' if t.name == 'acept' else 'Não Aceita'))
+
+  fig_animais_custo.update_layout(
+    title={
+          'text': 'Distribuição de Imóveis por Área e Custo em Aceite de Animais',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',}, 
+    legend_title=None,
+  )
+  col3.plotly_chart(fig_animais_custo)
+
+#Sexta linha de gráfico - Análise para mobília
+#Sétima linha de gráfico - Análise por andar
+#Oitava linha de gráfico - Análise por vaga de estacionamento
 
 with st.container():
   st.write('---')

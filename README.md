@@ -77,8 +77,8 @@ Objetivo: Auxiliar na melhor escolha de aluguel, considerando os questionamentos
 - Qual o valor do metro quadrado para alugar total e por cidade? ✅
 - Qual a média de valor total do aluguel e por cidade? ✅
 - Qual a correlação entre area e aluguel por cidade? ✅
-- Como estão distribuidos os valores imbutidos no aluguel por cidade?
-- Onde se concetram os imoveis com maior valor de aluguel? E os de menor valor?
+- Como estão distribuidos os valores imbutidos no aluguel por cidade? ✅
+- Onde se concetram os imoveis com maior valor de aluguel? E os de menor valor? ✅
 - Como estão distribuidos os imoveis por valor de aluguel, área e que podem ou não ter animais de estimação?
 - Qual a relação entre o preço e a presença ou não de mobília por cidade?
 - Qual a relação entre andar e valor total do aluguel por cidade?
