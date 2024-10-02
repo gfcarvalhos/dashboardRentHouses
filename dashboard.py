@@ -113,7 +113,7 @@ with st.container(border=True):
                      title="Média do Valor de Aluguel por Cidade",
                      labels={'total (R$)': 'Total (R$)', 'city': ''},
                      color = 'color',
-                     text='total (R$)',
+                     text=dados_media_total['total (R$)'].apply(lambda x: f'R$ {x}'),
                     color_discrete_map={
                       'Abaixo da média': '#1f77b4',
                       'Acima da média': '#aec7e8'     
@@ -121,7 +121,7 @@ with st.container(border=True):
   #Retira legenda de cores
   fig_media_total.update_coloraxes(showscale=False)
   #Formata fonte da letra
-  fig_media_total.update_traces(textfont=dict(size=12, color='white', family='Arial, sans-serif', weight='bold'))
+  fig_media_total.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
   #Posiciona o titulo
   fig_media_total.update_layout(
     showlegend=False,
@@ -132,7 +132,6 @@ with st.container(border=True):
             'xanchor': 'center',
             'yanchor': 'top',}
 ) 
-
   #Adiciona uma linha pontilhada horizontal para a média
   fig_media_total.add_shape(
     type="line",
@@ -140,16 +139,15 @@ with st.container(border=True):
     x1=len(dados_media_total)-0.5, #fim do eixo
     y0=media_aluguel,
     y1=media_aluguel,
-    line=dict(color="lightcoral", width=2, dash="dash"),
+    line=dict(color="orangered", width=2, dash="dash"),
   )
-
   #Legenda para a linha pontilhada
   fig_media_total.add_annotation(
     x=len(dados_media_total)/2,
     y=media_aluguel*1.05,
     text=f"Custo médio",
     showarrow=False,
-    font=dict(size=12, color="lightcoral"),
+    font=dict(size=12, color="orangered"),
     xanchor="right"
   )
   col2.plotly_chart(fig_media_total)
@@ -163,15 +161,15 @@ with st.container(border=True):
 
   fig_metro_quadrado = px.bar(dados_media, x= 'metro_quadrado', y='city', 
                               title='Valor do metro quadrado por cidade',
-                              orientation='h',text='metro_quadrado',
+                              orientation='h',
+                              text=dados_media['metro_quadrado'].apply(lambda x: f'R$ {x}'),
                               labels={'metro_quadrado': 'Valor do Metro Quadrado (R$)', 'city': ''}, 
                               color = 'color',
                               color_discrete_map={
                                  'Abaixo da média': '#1f77b4',  
                                  'Acima da média': '#aec7e8'    
                              })
-  fig_metro_quadrado.update_coloraxes(showscale=False) 
-  fig_metro_quadrado.update_traces(textfont=dict(size=12, color='white', family='Arial, sans-serif', weight='bold'))
+  fig_metro_quadrado.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
   fig_metro_quadrado.update_layout(
     showlegend=False,
     title={
@@ -189,7 +187,7 @@ with st.container(border=True):
     x1=media_metro_quadrado,
     y0=-0.5, #inicio do eixo
     y1=len(dados_media)-0.5, #fim do eixo
-    line=dict(color="lightcoral", width=2, dash="dash"),
+    line=dict(color="orangered", width=2, dash="dash"),
   )
 
   #Legenda para a linha pontilhada
@@ -198,7 +196,7 @@ with st.container(border=True):
     x=media_metro_quadrado,
     text=f"Custo médio",
     showarrow=False,
-    font=dict(size=12, color="lightcoral"),
+    font=dict(size=12, color="orangered"),
     yanchor="bottom"
   )
   col3.plotly_chart(fig_metro_quadrado)
