@@ -167,6 +167,7 @@ with st.container(border=True):
   )
   col2.plotly_chart(fig_media_total)
 
+  #Grafico 3 - valor medio
   dados_media_area = dados[['area', 'city']].groupby('city').mean().reset_index()
   dados_media = pd.merge(dados_media_total, dados_media_area, on='city', suffixes=('_total', '_area'))
   dados_media['metro_quadrado'] = dados_media['total (R$)'] / dados_media['area']
@@ -187,6 +188,7 @@ with st.container(border=True):
   fig_metro_quadrado.update_traces(textfont=dict(size=10, color='white', family='Arial, sans-serif', weight='bold'))
   fig_metro_quadrado.update_layout(
     xaxis_title=None,
+    yaxis_title=None,
     showlegend=False,
     title={
           'text': 'Valor do Metro Quadrado por Cidade',
