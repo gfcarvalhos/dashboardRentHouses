@@ -410,10 +410,67 @@ with st.container(border=True):
   col3.plotly_chart(fig_animais_custo)
 
 #Sexta linha de gráfico - Análise para mobília
+with st.container(border=True):
+  col1, col2 = st.columns(2)
+  #dados_mobilia = dados.groupby('city')['furniture'].value_counts().reset_index()
+  dados_mobilia = dados
+
+  fig_mobilia_distribuicao = px.histogram(dados_mobilia, 
+                                          x='area', 
+                                          color='furniture',
+                                          labels={'area': 'Área (m²)'},
+                                          title='Distribuição de Imóveis Mobiliados e não Mobiliados',
+                                          nbins=40,
+                                          color_discrete_map={
+                                            'furnished': '#aec7e8',
+                                            'not furnished': '#1f77b4'
+                                          }
+                                          )
+  fig_mobilia_distribuicao.update_layout(
+    legend_title=None,
+    title={
+          'text': 'Distribuição de Imóveis Mobiliados e não Mobiliados',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',},
+    yaxis_title='Distribuição de Imóveis por área',
+  )
+  #Atualiza legenda
+  fig_mobilia_distribuicao.for_each_trace(lambda t: t.update(name='Mobiliado' if t.name == 'furnished' else 'Não Mobiliado'))
+  #Acrescenta bordas por intervalo
+  fig_mobilia_distribuicao.update_traces(marker_line=dict(color='black', width=1))
+
+  col1.plotly_chart(fig_mobilia_distribuicao)
+
+  #Grafico 2 - Visao por cidade
+  dados_mobilia_cidades = dados.groupby('city')['furniture'].value_counts().reset_index()
+  dados_mobilia_cidades['preco_medio'] = dados.groupby(['city', 'furniture'])['total (R$)'].mean().reset_index(drop=True).round(2)
+
+  fig_mobilia_cidades = px.scatter(dados_mobilia_cidades, 
+                   x='city', 
+                   y='preco_medio', 
+                   size ='count', 
+                   color='furniture',
+                   title='Distribuição de Imóveis por valor e quantidade (size) nas Cidades',
+                   color_discrete_map={
+                     'furnished': '#aec7e8',
+                     'not furnished': '#1f77b4'
+                   })
+  #Atualiza legenda
+  fig_mobilia_cidades.for_each_trace(lambda t: t.update(name='Mobiliado' if t.name == 'furnished' else 'Não Mobiliado'))
+  #Acrescenta bordas por intervalo
+  fig_mobilia_cidades.update_layout(
+    title={
+          'text': 'Distribuição de Imóveis por valor médio e quantidade (size) nas Cidades',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',},
+    yaxis_title='Média de Custo do Alugel (R$)',
+    xaxis_title='Área (m²)',
+    legend_title=None
+  )
+  col2.plotly_chart(fig_mobilia_cidades)
 #Sétima linha de gráfico - Análise por andar
 #Oitava linha de gráfico - Análise por vaga de estacionamento
-
-with st.container():
-  st.write('---')
-  dados_nao_tratados = carregar_dados()
-  nome_cidade = st.selectbox('Cidade', dados_nao_tratados['city'].unique())
