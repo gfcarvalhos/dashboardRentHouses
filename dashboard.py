@@ -472,5 +472,54 @@ with st.container(border=True):
     legend_title=None
   )
   col2.plotly_chart(fig_mobilia_cidades)
-#Sétima linha de gráfico - Análise por andar
-#Oitava linha de gráfico - Análise por vaga de estacionamento
+
+#Sétima linha de gráfico - Análise por andar e quantidade de quartos
+with st.container(border=True):
+  dados_quarto = dados
+
+  dados_quartos = dados.groupby(['city', 'rooms'])['rooms'].value_counts().reset_index()
+  dados_quartos['valor_medio'] = dados.groupby(['city', 'rooms'])['total (R$)'].mean().reset_index(drop=True).round(2)
+  dados_quartos['rooms'] = dados_quartos['rooms'].astype(str)
+  fig_dados_quartos = px.density_heatmap(dados_quartos, 
+                                        z='valor_medio', 
+                                        x='rooms', 
+                                        y='city',
+                                        color_continuous_scale= px.colors.sequential.Blues_r,
+                                        title='Relação entre Quartos, Aluguel e Cidade')
+  fig_dados_quartos.update_traces(xbins=dict(start=1, end=dados['rooms'].nunique(), size=1))
+  fig_dados_quartos.update_layout(
+    coloraxis_colorbar_title='Valor Médio do Aluguel (R$)',
+    title={
+          'text': 'Relação entre Quartos, Valor Médio de Aluguel e Cidade',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',},
+    yaxis_title=None,
+    xaxis_title='Quantidade de Quartos'
+  )
+  st.plotly_chart(fig_dados_quartos)
+
+  dados_andar = dados
+  dados_andar['floor'] = dados_andar['floor'].astype(str)
+
+  fig_dados_andar = px.density_heatmap(dados_andar, 
+                                        z='total (R$)', 
+                                        x='floor', 
+                                        y='city',
+                                        histfunc= 'avg',
+                                        color_continuous_scale= px.colors.sequential.Blues_r,
+                                        title='Relação entre Andar, Aluguel e Cidade')
+  fig_dados_andar.update_traces(xbins=dict(start=1, end=dados['floor'].nunique(), size=1))
+  fig_dados_andar.update_layout(
+    coloraxis_colorbar_title='Valor Médio do Aluguel (R$)',
+    title={
+          'text': 'Relação entre Andar, Valor Médio de Aluguel e Cidade',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',},
+    yaxis_title=None,
+    xaxis_title='Andar'
+  )
+  st.plotly_chart(fig_dados_andar)
