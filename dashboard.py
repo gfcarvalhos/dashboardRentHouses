@@ -240,7 +240,7 @@ with st.container(border=True):
                                 })
   fig_area_aluguel.update_layout(
     title={
-          'text': 'Distribuição de Imóveis com Destaque para Preço/m² Abaixo da Média',
+          'text': 'Distribuição de Imóveis por Área com Destaque para Preço/m² Abaixo da Média',
             'y': 0.97,
             'x': 0.5,
             'xanchor': 'center',
@@ -454,7 +454,7 @@ with st.container(border=True):
                    y='preco_medio', 
                    size ='count', 
                    color='furniture',
-                   title='Distribuição de Imóveis por valor e quantidade (size) nas Cidades',
+                   title='Distribuição de Imóveis por Valor e Quantidade (size) nas Cidades',
                    color_discrete_map={
                      'furnished': '#aec7e8',
                      'not furnished': '#1f77b4'
